@@ -1,4 +1,4 @@
-##dahyun currency system
+##dahyun currency system.<br>
 this project was made for dayun. (currency management system)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
