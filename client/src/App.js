@@ -10,6 +10,7 @@ import TableCell from '@material-ui/core/TableCell';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import { style } from '@material-ui/system';
+import CustomerAdd from './components/CustomerAdd';
 
 const styles = theme => ({
   root: {
@@ -29,10 +30,25 @@ const styles = theme => ({
 
 class App extends React.Component {
 
-  state = {
-    customers: "",
-    completed: 0
+  constructor(props) {
+    super(props);
+    this.state = {
+      customers: '',
+      completed: 0
+    }
   }
+
+  stateRefresh = () => {
+    this.setState({
+      customers: '',
+      completed: 0
+    });
+    this.callApi()
+      .then(res => this.setState({customers: res}))
+      .catch(err => console.log(err));
+  }
+
+
 
   componentDidMount() {
     this.timer = setInterval(this.progress, 20);
@@ -55,6 +71,7 @@ class App extends React.Component {
   render() {
     const { classes } = this.props;
     return (
+      <div>
       <Paper className={classes.root}>
           <Table className={classes.table}>
             <TableHead>
@@ -86,6 +103,8 @@ class App extends React.Component {
             </TableBody>
           </Table>
     </Paper >
+    <CustomerAdd stateRefresh={this.stateRefresh}/>
+    </div>
     )
   }
 }
