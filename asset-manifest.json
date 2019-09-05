@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/reactManagement-Tutorial/static/css/main.5b746774.chunk.css",
+    "main.js": "/reactManagement-Tutorial/static/js/main.7ca0626a.chunk.js",
+    "main.js.map": "/reactManagement-Tutorial/static/js/main.7ca0626a.chunk.js.map",
+    "runtime~main.js": "/reactManagement-Tutorial/static/js/runtime~main.96117f7e.js",
+    "runtime~main.js.map": "/reactManagement-Tutorial/static/js/runtime~main.96117f7e.js.map",
+    "static/css/2.5a2f7233.chunk.css": "/reactManagement-Tutorial/static/css/2.5a2f7233.chunk.css",
+    "static/js/2.e5cddda9.chunk.js": "/reactManagement-Tutorial/static/js/2.e5cddda9.chunk.js",
+    "static/js/2.e5cddda9.chunk.js.map": "/reactManagement-Tutorial/static/js/2.e5cddda9.chunk.js.map",
+    "index.html": "/reactManagement-Tutorial/index.html",
+    "precache-manifest.0fc9baddabd25f96c70cef502a0c44ef.js": "/reactManagement-Tutorial/precache-manifest.0fc9baddabd25f96c70cef502a0c44ef.js",
+    "service-worker.js": "/reactManagement-Tutorial/service-worker.js",
+    "static/css/2.5a2f7233.chunk.css.map": "/reactManagement-Tutorial/static/css/2.5a2f7233.chunk.css.map",
+    "static/css/main.5b746774.chunk.css.map": "/reactManagement-Tutorial/static/css/main.5b746774.chunk.css.map"
+  }
+}
