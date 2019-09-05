@@ -25,10 +25,19 @@ const upload = multer({dest: './upload'});
 
 app.get('/api/customers', (req,res) => {
     connection.query(
-    "SELECT * FROM CUSTOMER WHERE isDeleted = 0",
+    "SELECT * FROM CUSTOMER",
     (err, rows, fields) => {
       res.send(rows);
     } 
+  );
+});
+
+app.get('/api/currency', (req,res) => {
+  connection.query(
+  "SELECT * FROM MONTHLY_CURRENCY",
+  (err, rows, fields) => {
+    res.send(rows);
+  } 
   );
 });
 

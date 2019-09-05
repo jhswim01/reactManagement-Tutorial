@@ -11,6 +11,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import { style } from '@material-ui/system';
 import CustomerAdd from './components/CustomerAdd';
+import MonthlyButtons from './components/MonthlyButtons'
 
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -28,6 +29,9 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 
+import {XYPlot, XAxis, YAxis, LabelSeries, VerticalGridLines, HorizontalGridLines, VerticalBarSeries,  VerticalBarSeriesCanvas, LineSeries} from 'react-vis';
+
+import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
   root: {
@@ -35,8 +39,23 @@ const styles = theme => ({
     minWidth: 1080
   },
   paper: {
+    marginTop: 18,
     marginLeft: 18,
     marginRight: 18
+  },
+  button: {
+    marginTop: 18,
+    marginLeft: 18,
+    marginRight: 18
+  },
+  graphTest:{
+    marginLeft: 35,
+    marginTop: 18,
+    paddingTop: 25 
+  },
+  maxmin:{
+    marginLeft: 35,
+    marginTop: 30,
   },
   table: {
   },
@@ -119,11 +138,61 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+    var today = new Date();
     this.state = {
       customers: '',
       completed: 0,
-      searchKeyword: ''
+      searchKeyword: '',
+      useCanvas: false,
+      cur: '',
+      data_rendered: null,
+      month: today.getMonth() + 1
     }
+  }
+
+  sortCurData = (month) => {
+    var raw_data = this.state.cur;
+    var sorted_data = [];
+    // var sorted_data=[
+    //   {x: '8/25', y: 1123},
+    //   {x: '8/26', y: 1250},
+    //   {x: '8/27', y: 1180}
+    // ];;
+
+    for(var i=0; i<raw_data.length; i++) {
+    
+    if (raw_data[i].MONTH == month)
+      sorted_data.unshift({x: raw_data[i].MONTH+'/'+raw_data[i].DAY, y:raw_data[i].CURRENCY});
+    console.log(i);
+    }
+    // var sorted_data=[
+    //   {x: raw_data[0].MONTH, y: raw_data[0].CURRENCY},
+    //   {x: '8/26', y: 1250},
+    //   {x: '8/26', y: 1180}
+    // ];;
+
+    return sorted_data;
+  }
+
+  calculateDomainRendered = (month) => {
+    var sorted_data = this.sortCurData(month);
+    
+    var sorted_cur = [];
+    for (var i=0; i<sorted_data.length; i++){
+      sorted_cur.push(sorted_data[i].y);
+    }
+
+    var domain_rendered = [];
+    var max;
+    var min;
+    
+    min = Math.min.apply(null, sorted_cur)-10;
+    max = Math.max.apply(null, sorted_cur)+10;
+
+    domain_rendered.push(min);
+    domain_rendered.push(max);
+    console.log(domain_rendered);
+    return domain_rendered;
   }
 
   stateRefresh = () => {
@@ -138,12 +207,16 @@ class App extends React.Component {
   }
 
 
-
   componentDidMount() {
-    this.timer = setInterval(this.progress, 20);
+    // this.timer = setInterval(this.progress, 20);
     this.callApi()
       .then(res => this.setState({customers: res}))
       .catch(err => console.log(err));
+    this.callCurApi()
+      .then(res => this.setState({cur: res}))
+      .catch(err => console.log(err));
+
+    
   }
 
   callApi = async () => {
@@ -152,9 +225,28 @@ class App extends React.Component {
     return body; 
   }
 
+  callCurApi = async () => {
+    const response = await fetch('/api/currency');
+    const body = await response.json();
+    return body;
+  }
+
   progress = () => {
     const { completed } = this.state;
     this.setState({ completed: completed >= 100 ? 0: completed + 1});
+  }
+
+  handleMonthButtonClick(_month) {
+    this.setState({
+      customers: '',
+      completed: 0,
+      searchKeyword: '',
+      useCanvas: false,
+      
+      data_rendered: null,
+      month: _month
+    })
+    
   }
 
   handleValueChange = (e) => {
@@ -172,10 +264,22 @@ class App extends React.Component {
         return <Customer stateRefresh={this.stateRefresh} key={c.id} id={c.id} image={c.image} name={c.name} birthday={c.birthday} gender={c.gender} job={c.job} />
       });
     }
+    const {useCanvas} = this.state;
+    const BarSeries = useCanvas ? VerticalBarSeriesCanvas : VerticalBarSeries;
     const { classes } = this.props;
     const cellList = ['번호', "프로필 이미지", "이름", "생년월일", "성별", "직업", "설정"];
+    const data_= [
+      {x: '8/25', y: 1123},
+      {x: '8/26', y: 1250},
+      {x: '8/27', y: 1180}
+    ];
+    var month = this.state.month;
+    var sorted_data = this.state.cur ? this.sortCurData(month) : [];
+    var domain_rendered = this.state.cur ? this.calculateDomainRendered(month) : [];
+
     return (
       <div className={classes.root}>
+      
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -187,9 +291,10 @@ class App extends React.Component {
             <MenuIcon />
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
-            고객 관리 시스템
+            환율 조회 서비스
           </Typography>
-          <div className={classes.search}>
+          
+          {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
@@ -204,8 +309,8 @@ class App extends React.Component {
               value = {this.state.searchKeyword}
               onChange={this.handleValueChange}
             />
-          </div>
-          <div className={classes.grow} />
+          </div> */}
+          {/* <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -238,14 +343,82 @@ class App extends React.Component {
             >
               <MoreIcon />
             </IconButton>
-          </div>
+          </div> */}
         </Toolbar>
       </AppBar>
-      <div className={classes.menu}>
+      {/* <div className={classes.menu}>
         <CustomerAdd stateRefresh={this.stateRefresh}/>
+      </div> */}
+      <div className={classes.button}>
+      <div>
+        <Button color="primary" onClick={() => { this.handleMonthButtonClick(1) }}>
+          1월
+        </Button>
+        <Button color="primary" onClick={() => { this.handleMonthButtonClick(2) }}>
+          2월
+        </Button>
+        <Button color="primary" onClick={() => { this.handleMonthButtonClick(3) }}>
+          3월
+        </Button>
+        <Button color="primary"  onClick={() => { this.handleMonthButtonClick(4) }}>
+          4월
+        </Button>
+        <Button color="primary"  onClick={() => { this.handleMonthButtonClick(5) }}>
+          5월
+        </Button>
+        <Button  color="primary"  onClick={() => { this.handleMonthButtonClick(6) }}>
+          6월
+        </Button>
+        <Button color="primary"  onClick={() => { this.handleMonthButtonClick(7) }}>
+          7월
+        </Button>
+        <Button  color="primary" onClick={() => { this.handleMonthButtonClick(8) }}>
+          8월
+        </Button>
+        <Button  color="primary" onClick={() => { this.handleMonthButtonClick(9) }}>
+          9월
+        </Button>
+        <Button  color="primary" onClick={() => { this.handleMonthButtonClick(10) }}>
+          10월
+        </Button>
+        <Button color="primary"  onClick={() => { this.handleMonthButtonClick(11) }}>
+          11월
+        </Button>
+        <Button color="primary"  onClick={() => { this.handleMonthButtonClick(12) }}>
+          12월
+        </Button>
+      </div>
       </div>
       <Paper className={classes.paper}>
-          <Table className={classes.table}>
+        {this.state.cur ? 
+          <div className={classes.graphTest}>
+          <XYPlot
+            width={1800}
+            height={500}
+            yDomain={domain_rendered}
+            xType="ordinal">        
+          <HorizontalGridLines />
+          <VerticalBarSeries
+            data={sorted_data}/>
+          <LabelSeries
+              data={sorted_data.map(obj => {
+                  return { ...obj, label: obj.y.toString(), style: {fontSize: 13} }
+              })}
+              labelAnchorX="middle"
+              labelAnchorY="text-after-edge"
+                  />
+          <XAxis />
+          <YAxis />
+          </XYPlot>
+        </div> :
+        <TableRow>
+        <TableCell colSpan="6" align="center">
+           <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
+        </TableCell>
+        </TableRow>
+        }
+      
+          {/* <Table className={classes.table}>
             <TableHead>
               {cellList.map(c => {
                 return <TableCell className={classes.tableHead}>{c}</TableCell>
@@ -261,8 +434,14 @@ class App extends React.Component {
                   </TableRow>
                   }  
             </TableBody>
-          </Table>
+          </Table> */}
     </Paper >
+      <div className={classes.maxmin}>
+        {month}월 최고 환율 : {domain_rendered[1]-10}
+      </div>
+      <div className={classes.maxmin}>
+        {month}월 최저 환율 : {domain_rendered[0]+10}
+      </div>
     </div>
     )
   }
