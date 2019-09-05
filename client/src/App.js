@@ -94,7 +94,8 @@ class App extends React.Component {
                                 birthday={c.birthday}
                                 gender={c.gender}
                                 job={c.job}
-                            /> )
+                            />
+                          )
                   }) : 
                   <TableRow>
                     <TableCell colSpan="6" align="center">
